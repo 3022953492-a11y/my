@@ -1,0 +1,101 @@
+[
+  {
+    "image_path": "H2O.png",
+    "formula": "H₂O",
+    "graph_data": {
+      "nodes": [
+        "H",
+        "O",
+        "H"
+      ],
+      "edges": [
+        [
+          0,
+          1
+        ],
+        [
+          1,
+          2
+        ]
+      ],
+      "bond_types": [
+        "covalent",
+        "covalent"
+      ]
+    }
+  },
+  {
+    "image_path": "CO2.png",
+    "formula": "CO₂",
+    "graph_data": {
+      "nodes": [
+        "C",
+        "O",
+        "O"
+      ],
+      "edges": [
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          2
+        ]
+      ],
+      "bond_types": [
+        "double",
+        "double"
+      ]
+    }
+  },
+  {
+    "image_path": "H2SO4.png",
+    "formula": "H₂SO₄",
+    "graph_data": {
+      "nodes": [
+        "H",
+        "H",
+        "S",
+        "O",
+        "O",
+        "O",
+        "O"
+      ],
+      "edges": [
+        [
+          0,
+          2
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          2,
+          3
+        ],
+        [
+          2,
+          4
+        ],
+        [
+          2,
+          5
+        ],
+        [
+          2,
+          6
+        ]
+      ],
+      "bond_types": [
+        "covalent",
+        "covalent",
+        "double",
+        "double",
+        "single",
+        "single"
+      ]
+    }
+  }
+]

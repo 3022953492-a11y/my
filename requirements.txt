@@ -1,0 +1,55 @@
+# 化学公式识别项目依赖包
+
+# 核心深度学习框架
+torch>=1.9.0
+torchvision>=0.10.0
+
+# 图像处理
+opencv-python>=4.5.0
+Pillow>=8.0.0
+
+# 数据处理和科学计算
+numpy>=1.19.0
+pandas>=1.3.0
+scipy>=1.7.0
+
+# 机器学习工具
+scikit-learn>=0.24.0
+
+# 图神经网络
+networkx>=2.6.0
+dgl>=0.7.0
+
+# 自然语言处理
+transformers>=4.10.0
+tokenizers>=0.11.0
+
+# 配置管理
+PyYAML>=5.4.0
+
+# 进度显示
+tqdm>=4.60.0
+
+# 日志和调试
+loguru>=0.5.0
+
+# 命令行工具
+click>=8.0.0
+
+# 数据可视化
+matplotlib>=3.3.0
+seaborn>=0.11.0
+
+# 序列化
+json5>=0.9.0
+
+# 测试框架
+pytest>=6.0.0
+
+# 代码质量
+black>=21.0.0
+flake8>=3.9.0
+
+# 文档生成
+sphinx>=4.0.0
+sphinx-rtd-theme>=1.0.0

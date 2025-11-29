@@ -1,0 +1,92 @@
+[
+  {
+    "image_path": "../dataset/images/1.jpg",
+    "formula": "H₂O",
+    "graph_data": {
+      "nodes": ["H", "O", "H"],
+      "edges": [[0, 1], [1, 2]],
+      "bond_types": ["covalent", "covalent"]
+    }
+  },
+  {
+    "image_path": "../dataset/images/2.jpg",
+    "formula": "CO₂",
+    "graph_data": {
+      "nodes": ["C", "O", "O"],
+      "edges": [[0, 1], [0, 2]],
+      "bond_types": ["double", "double"]
+    }
+  },
+  {
+    "image_path": "../dataset/images/3.jpg",
+    "formula": "CH₄",
+    "graph_data": {
+      "nodes": ["C", "H", "H", "H", "H"],
+      "edges": [[0, 1], [0, 2], [0, 3], [0, 4]],
+      "bond_types": ["covalent", "covalent", "covalent", "covalent"]
+    }
+  },
+  {
+    "image_path": "../dataset/images/4.jpg",
+    "formula": "NaCl",
+    "graph_data": {
+      "nodes": ["Na", "Cl"],
+      "edges": [[0, 1]],
+      "bond_types": ["ionic"]
+    }
+  },
+  {
+    "image_path": "../dataset/images/5.jpg",
+    "formula": "H₂SO₄",
+    "graph_data": {
+      "nodes": ["H", "H", "S", "O", "O", "O", "O"],
+      "edges": [[0, 2], [1, 2], [2, 3], [2, 4], [2, 5], [2, 6]],
+      "bond_types": ["covalent", "covalent", "double", "double", "single", "single"]
+    }
+  },
+  {
+    "image_path": "../dataset/images/6.jpg",
+    "formula": "C₆H₁₂O₆",
+    "graph_data": {
+      "nodes": ["C", "C", "C", "C", "C", "C", "O", "O", "O", "O", "O", "O", "H", "H", "H", "H", "H", "H", "H", "H", "H", "H", "H", "H"],
+      "edges": [[0, 1], [1, 2], [2, 3], [3, 4], [4, 5], [5, 0], [0, 6], [1, 7], [2, 8], [3, 9], [4, 10], [5, 11], [0, 12], [0, 13], [1, 14], [1, 15], [2, 16], [2, 17], [3, 18], [3, 19], [4, 20], [4, 21], [5, 22], [5, 23]],
+      "bond_types": ["single", "single", "single", "single", "single", "single", "single", "single", "single", "single", "single", "single", "single", "single", "single", "single", "single", "single", "single", "single", "single", "single", "single", "single"]
+    }
+  },
+  {
+    "image_path": "../dataset/images/7.jpg",
+    "formula": "CaCO₃",
+    "graph_data": {
+      "nodes": ["Ca", "C", "O", "O", "O"],
+      "edges": [[0, 1], [1, 2], [1, 3], [1, 4]],
+      "bond_types": ["ionic", "double", "single", "single"]
+    }
+  },
+  {
+    "image_path": "../dataset/images/8.jpg",
+    "formula": "Fe₂O₃",
+    "graph_data": {
+      "nodes": ["Fe", "Fe", "O", "O", "O"],
+      "edges": [[0, 2], [0, 3], [0, 4], [1, 2], [1, 3], [1, 4]],
+      "bond_types": ["ionic", "ionic", "ionic", "ionic", "ionic", "ionic"]
+    }
+  },
+  {
+    "image_path": "../dataset/images/9.jpg",
+    "formula": "NH₃",
+    "graph_data": {
+      "nodes": ["N", "H", "H", "H"],
+      "edges": [[0, 1], [0, 2], [0, 3]],
+      "bond_types": ["covalent", "covalent", "covalent"]
+    }
+  },
+  {
+    "image_path": "../dataset/images/10.jpg",
+    "formula": "HCl",
+    "graph_data": {
+      "nodes": ["H", "Cl"],
+      "edges": [[0, 1]],
+      "bond_types": ["covalent"]
+    }
+  }
+]
