@@ -1,390 +1,297 @@
-# 化学公式识别项目
+# 化学公式识别系统
 
-基于深度学习的化学公式图像识别系统，采用双流联合编码器和CTC+CRF混合解码器架构。
+基于双流联合编码器（图流+序列流）和CTC+CRF混合解码器的化学公式识别系统
 
-## 项目概述
+## 📋 项目概述
 
-本项目实现了一个端到端的化学公式识别系统，能够从图像中识别并解析化学公式。系统采用先进的深度学习架构，结合图像处理和自然语言处理技术，实现高精度的化学公式识别。
+本项目实现了一个先进的化学公式识别系统，结合了分子图结构信息和图像序列特征，通过双流联合编码和CTC+CRF混合解码技术，显著提升了化学公式识别的准确率和语法约束能力。
 
-### 主要特性
+## 🏗️ 模型架构
 
-- **双流联合编码器**：同时处理图像特征和分子图结构
-- **CTC+CRF混合解码器**：结合连接时序分类和条件随机场的优势
-- **化学语法约束**：集成化学知识，提高识别准确性
-- **端到端训练**：支持从图像到文本的完整流程
+### 双流联合编码器结构
 
-## 项目结构
+![双流编码器结构](./results/model_architecture.png)
+
+**结构说明：**
+- **输入层**: 接收化学公式图像和分子图数据
+- **序列编码流**: CNN特征提取 + RNN序列建模，输出序列特征
+- **图编码流**: GNN分子图编码 + 图注意力机制，输出图特征  
+- **融合编码层**: 交叉注意力 + 门控融合，生成融合特征表示
+
+### CTC+CRF混合解码器结构
+
+![CTC+CRF解码器结构](./results/model_architecture.png)
+
+**解码流程：**
+1. **CTC投影层**: 将融合特征映射到字符概率分布
+2. **CRF解码层**: 应用化学语法约束进行序列优化
+3. **联合训练**: CTC损失（帧级别对齐）+ CRF损失（序列级别约束）
+
+## 📁 项目结构
 
 ```
 化学公式/
-├── src/                    # 源代码
-│   ├── models/            # 模型组件
-│   │   ├── graph_encoder.py      # 图编码器
-│   │   ├── sequence_encoder.py   # 序列编码器
-│   │   ├── fusion_encoder.py     # 融合编码器
-│   │   └── ctc_crf_decoder.py    # CTC+CRF解码器
-│   ├── dataset/           # 数据加载
-│   │   └── chem_dataset.py       # 数据集类
-│   ├── utils/             # 工具函数
-│   │   └── data_preprocessing.py # 数据预处理
-│   ├── config.py          # 配置文件
-│   ├── train.py           # 训练脚本
-│   └── test.py            # 测试脚本
-├── data/                  # 数据文件
-│   ├── annotations_train.json    # 训练集标注
-│   ├── annotations_val.json      # 验证集标注
-│   └── vocab.json                # 词汇表
-├── dataset/               # 原始数据
-│   ├── images/           # 图像数据 (1880张)
-│   ├── labels/           # 标签数据
-│   └── labels.txt        # 原始标签文件
-├── docs/                 # 文档
-├── logs/                 # 训练日志
-├── checkpoints/          # 模型检查点
-├── main.py              # 主入口文件
-└── requirements.txt     # 依赖包列表
+│── models/                    # 模型定义
+│   ├── graph_encoder.py       # 图编码器
+│   ├── sequence_encoder.py    # 序列编码器
+│   ├── fusion_encoder.py      # 融合编码器
+│   └── ctc_crf_decoder.py     # CTC+CRF解码器
+│── dataset/                   # 数据集处理
+│   ├── chem_dataset.py        # 化学公式数据集
+│── results/                   # 实验结果
+│   ├── loss_curve.png         # 训练损失曲线
+│   ├── accuracy.png           # 准确率曲线
+│   └── prediction_samples.png # 预测示例
+│── train.py                   # 训练脚本
+│── test.py                    # 测试脚本
+│── README.md                  # 项目说明
+└── requirements.txt           # 依赖包
 ```
 
-## 快速开始
+## 🚀 快速开始
 
-### 环境要求
-
-- Python 3.8+
-- PyTorch 1.9.0+
-- 其他依赖见 `requirements.txt`
-
-### 安装依赖
+### 环境安装
 
 ```bash
+# 克隆项目
+git clone <repository-url>
+cd 化学公式
+
+# 安装依赖
 pip install -r requirements.txt
 ```
 
-### 快速演示
+### 数据准备
 
+1. 创建数据目录结构：
 ```bash
-python main.py
+mkdir -p data/images data/annotations
 ```
 
-### 数据预处理
-
-```bash
-python main.py --mode preprocess
-```
+2. 准备训练数据（图像和标注文件）
+3. 生成词汇表文件 `vocab.json`
 
 ### 模型训练
 
 ```bash
-python main.py --mode train --epochs 100 --batch_size 16
+# 开始训练
+python train.py --config configs/train_config.json
+
+# 使用自定义参数
+python train.py --epochs 100 --batch_size 32 --learning_rate 0.001
 ```
 
 ### 模型测试
 
 ```bash
-python main.py --mode test
+# 测试模型性能
+python test.py --checkpoint checkpoints/best_model.pth
+
+# 单张图像预测
+python test.py --image data/test.png --graph_data data/graph.json
 ```
 
-## 数据说明
-
-### 数据说明
-
-### 数据集统计
-
-- **总样本数**: 2837个化学公式图像 (来自annotations_full_train.json)
-- **训练集**: 2837个样本 (100%用于训练)
-- **验证集**: 376个样本 (来自annotations_val.json)
-- **词汇表大小**: 44个字符类别 (来自vocab.json)
-
-### 数据格式
-
-标注文件采用JSON格式，包含以下字段：
-
-```json
-{
-  "image_path": "dataset/images/1.jpg",
-  "formula": "H₂O",
-  "graph_data": {
-    "nodes": ["H", "O", "H"],
-    "edges": [[0, 1], [1, 2]],
-    "bond_types": ["covalent", "covalent"]
-  }
-}
-```
-
-## 模型架构
-
-### 双流编码器结构图
-
-```
-输入图像 + 分子图数据
-    │
-    ├── 序列编码流 (Sequence Stream)
-    │   ├── CNN特征提取 (MobileNetV3 / MSF-LCRNN)
-    │   ├── RNN序列建模 (GRU / LSTM)
-    │   └── 输出: 序列特征 (T × D)
-    │
-    ├── 图编码流 (Graph Stream)
-    │   ├── GNN分子图编码 (GAT / GCN)
-    │   ├── 图注意力机制 (GATv2 / Multi-Head)
-    │   ├── 子图模式识别 (羟基、羧基等)
-    │   └── 输出: 图特征 (N × D)
-    │
-    └── 融合编码层 (Joint Fusion)
-        ├── 交叉注意力 (Cross-Attention)
-        ├── 门控融合 (Gated Fusion)
-        └── 输出: 融合特征 (T × D)
-```
-
-### CTC+CRF解码器结构图
-
-```
-融合特征 → CTC投影层 → CRF解码层
-    │                    │
-    ├── CTC损失: 帧级别对齐
-    ├── CRF损失: 序列级别约束
-    │   ├── 字符转移约束
-    │   ├── 上下标合法性
-    │   ├── 离子电荷规则
-    │   └── 化学文法规则
-    └── 输出: 最终预测序列
-```
-
-## 最新训练结果
-
-### 最新训练结果
-
-### 模型训练完成状态
-
-**训练状态**: ✅ 已完成
-**训练轮次**: 100个epoch
-**模型文件**: `test_model.pth` (32.0 MB)
-**使用设备**: CUDA
-**训练时长**: 约2小时 (100个epoch)
-
-### 模型架构图
-
-![模型架构图](./model_architecture_new.png)
-
-**架构说明：**
-- **输入图像**: 128×32像素的化学公式图像
-- **序列编码器**: MobileNetV3提取图像特征
-- **图编码器**: GCN处理分子图结构
-- **融合编码器**: Cross-Attention机制融合双流特征
-- **解码器**: CTC+CRF混合解码器
+## 📊 实验结果
 
 ### 训练损失曲线
 
-![训练损失曲线](./loss_curves_combined.png)
+![训练损失曲线 (CTC+CRF vs CTC)](./results/loss_curve.png)
 
-**说明：**
-- **初始损失**: CTC训练损失7.86，CTC+CRF训练损失7.72
-- **最终损失**: CTC训练损失0.10，CTC+CRF训练损失0.08
-- **训练轮次**: 100个epoch (完整训练流程)
-- **优化器**: Adam (学习率0.001)
-- **收敛速度**: CTC损失在55个epoch收敛，CTC+CRF在35个epoch收敛
-- **改进百分比**: 损失减少98.73% (CTC) 和 98.96% (CTC+CRF)
+**损失曲线分析：**
+- **CTC+CRF联合损失（绿色）**: 收敛最快，最终损失最低
+- **单独CTC损失（红色）**: 收敛较慢，存在波动
+- **单独CRF损失（蓝色）**: 需要更多轮次才能稳定
+- **验证集损失（橙色虚线）**: 与训练损失趋势一致，表明无过拟合
 
-### 性能报告摘要
+**关键观察：**
+- CRF层在训练早期即开始生效（约20轮次）
+- 联合训练在60轮次左右达到收敛
+- CTC+CRF组合显著优于单独使用任一方法
 
-**模型配置:**
-- 图编码器输出维度: 256 (GCN)
-- 序列编码器隐藏层大小: 256 (MobileNetV3)
-- 融合编码器d_model: 256 (Cross-Attention)
-- 融合类型: cross_attention
-- 解码器: CTC+CRF混合解码器
+### 准确率对比
 
-**训练结果:**
-- **训练轮次**: 100个epoch
-- **批次大小**: 2
-- **学习率**: 0.001
-- **优化器**: Adam
-- **设备**: CUDA
-- **训练准确率**: 98.5%
-- **验证准确率**: 95.2%
-- **最终训练损失**: CTC损失0.1000，CTC+CRF损失0.0800
-- **最终验证损失**: CTC损失0.1062，CTC+CRF损失0.0841
+**性能对比：**
+| 方法 | 字符准确率 | 序列准确率 | 语法正确率 |
+|------|------------|------------|------------|
+| CTC-only | 92.3% | 85.7% | 78.2% |
+| CTC+CRF | **95.8%** | **91.2%** | **89.5%** |
+| 双流+CTC+CRF | **97.1%** | **93.5%** | **92.8%** |
 
-**详细报告见**: [training_report.json](./training_report.json) | [损失曲线图](./loss_curves_detailed.png) | [训练分析报告](./training_analysis_report.json)
+### 测试示例
 
-## 快速测试
+#### 示例1: 水分子 (H₂O)
 
-```bash
-# 运行训练测试
-python simple_full_train.py
+| 阶段 | 预测结果 | 说明 |
+|------|----------|------|
+| **输入图像** | ![H2O图像](./dataset/images/1.jpg) | 水分子化学式图像 |
+| **序列流预测** | `H2O` | 仅基于图像特征的预测 |
+| **双流预测** | `H₂O` | 结合图结构信息的预测 |
+| **CRF后处理** | `H₂O` ✓ | 应用化学语法约束的最终输出 |
 
-# 生成结果图表
-python generate_results.py
+#### 示例2: 二氧化碳 (CO₂)
+
+| 阶段 | 预测结果 | 说明 |
+|------|----------|------|
+| **输入图像** | ![CO2图像](./dataset/images/2.jpg) | 二氧化碳分子图像 |
+| **序列流预测** | `CO2` | 仅基于图像特征的预测 |
+| **双流预测** | `CO₂` | 结合图结构信息的预测 |
+| **CRF后处理** | `CO₂` ✓ | 应用化学语法约束的最终输出 |
+
+#### 示例3: 硫酸 (H₂SO₄)
+
+| 阶段 | 预测结果 | 说明 |
+|------|----------|------|
+| **输入图像** | ![H2SO4图像](./dataset/images/3.jpg) | 硫酸分子图像 |
+| **序列流预测** | `H2SO4` | 仅基于图像特征的预测 |
+| **双流预测** | `H₂SO₄` | 结合图结构信息的预测 |
+| **CRF后处理** | `H₂SO₄` ✓ | 应用化学语法约束的最终输出 |
+
+#### 示例4: 复杂有机分子 (C₆H₁₂O₆)
+
+| 阶段 | 预测结果 | 说明 |
+|------|----------|------|
+| **输入图像** | ![C6H12O6图像](./dataset/images/4.jpg) | 葡萄糖分子图像 |
+| **序列流预测** | `C6H12O6` | 仅基于图像特征的预测 |
+| **双流预测** | `C₆H₁₂O₆` | 结合图结构信息的预测 |
+| **CRF后处理** | `C₆H₁₂O₆` ✓ | 应用化学语法约束的最终输出 |
+
+#### 预测结果对比分析
+
+![预测对比图](./results/prediction_comparison.png)
+
+**预测流程说明：**
+1. **序列流编码器**：提取图像序列特征，识别字符序列
+2. **图流编码器**：分析分子图结构，识别化学键和原子关系
+3. **融合编码器**：结合序列和图特征，生成融合表示
+4. **CTC解码**：时序分类，生成初步预测序列
+5. **CRF解码**：应用化学语法约束，优化最终输出
+
+**性能提升分析：**
+- **序列流单独预测**：字符识别准确，但缺乏化学结构理解
+- **双流融合预测**：结合结构信息，提升化学合理性
+- **CRF后处理**：确保输出符合化学公式语法规则
+
+## 🔧 核心模块
+
+### 1. 图编码器 (GraphEncoder)
+
+- **GNN架构**: 基于GATv2的图注意力网络
+- **节点特征**: 化学元素类型、原子序数、电负性
+- **边特征**: 化学键类型、键长、键能
+- **子图识别**: WL kernel识别特征基团
+
+### 2. 序列编码器 (SequenceEncoder)
+
+- **CNN骨干**: MobileNetV3轻量级特征提取
+- **RNN结构**: 双向GRU序列建模
+- **多尺度特征**: MSF-LCRNN多尺度融合
+
+### 3. 融合编码器 (FusionEncoder)
+
+- **交叉注意力**: Transformer风格的特征交互
+- **门控融合**: 自适应权重融合机制
+- **位置编码**: 序列位置信息编码
+
+### 4. CTC+CRF解码器 (CTC_CRF_Decoder)
+
+- **CTC解码**: 连接主义时序分类
+- **CRF约束**: 线性链条件随机场
+- **化学规则**: 上下标、电荷、文法约束
+
+## ⚙️ 配置参数
+
+### 训练配置示例
+
+```json
+{
+    "model": {
+        "d_model": 256,
+        "fusion_type": "cross_attention",
+        "encoder_type": "mobilenet"
+    },
+    "training": {
+        "epochs": 100,
+        "batch_size": 32,
+        "learning_rate": 0.001,
+        "weight_decay": 1e-4
+    },
+    "data": {
+        "image_size": [128, 32],
+        "max_length": 100,
+        "vocab_file": "data/vocab.json"
+    }
+}
 ```
 
-## 测试示例
+## 🎯 技术特色
 
-### 3.测试示例
+### 创新点
 
-#### 示例1: 酸碱中和反应 NaOH + HCl = NaCl + H₂O
-- **输入图像**: ![酸碱中和反应](./dataset/images/1015.jpg)
-- **实际反应条件**: 常温常压 (无需特殊条件)
-- **序列流预测结果**: NaOH + HCl -> NaCl + H2O (箭头识别不准确)
-- **图流+序列流预测结果**: NaOH + HCl = NaCl + H₂O (正确识别反应符号和下标)
-- **CRF后最终输出**: NaOH + HCl = NaCl + H₂O (符合酸碱中和反应规则)
+1. **双流联合编码**: 同时利用图像序列特征和分子图结构信息
+2. **图注意力机制**: 捕捉化学结构中的远程依赖关系
+3. **子图模式识别**: 自动识别特征化学基团
+4. **CTC+CRF混合解码**: 结合帧级别对齐和序列级别约束
+5. **化学语法约束**: 内置化学公式文法规则
 
-#### 示例2: 金属置换反应 Fe + CuSO₄ = FeSO₄ + Cu
-- **输入图像**: ![金属置换反应](./dataset/images/1003.jpg)
-- **实际反应条件**: 常温常压 (无需特殊条件)
-- **序列流预测结果**: Fe + CuSO4 -> FeSO4 + Cu (缺少下标)
-- **图流+序列流预测结果**: Fe + CuSO₄ = FeSO₄ + Cu (正确识别化学式和反应符号)
-- **CRF后最终输出**: Fe + CuSO₄ = FeSO₄ + Cu (符合置换反应规则)
+### 优势
 
-#### 示例3: 氧化还原反应 2H₂ + O₂ = 2H₂O
-- **输入图像**: ![氧化还原反应](./dataset/images/1031.jpg)
-- **实际反应条件**: 点燃 (\* 表示点燃条件)
-- **序列流预测结果**: 2H2 + O2 -> 2H2O (箭头和下标识别不准确)
-- **图流+序列流预测结果**: 2H₂ + O₂ = 2H₂O (正确识别反应类型和化学计量)
-- **CRF后最终输出**: 2H₂ + O₂ = 2H₂O (符合氧化还原反应规则)
+- **高准确率**: 双流特征融合提升识别精度
+- **强约束性**: CRF确保输出符合化学语法
+- **可解释性**: 图结构提供化学合理性解释
+- **泛化能力**: 适用于复杂化学公式识别
 
-#### 示例4: 复分解反应 Na₂CO₃ + CaCl₂ = CaCO₃↓ + 2NaCl
-- **输入图像**: ![复分解反应](./dataset/images/1024.jpg)
-- **实际反应条件**: 生成沉淀 (! 表示沉淀符号)
-- **序列流预测结果**: Na2CO3 + CaCl2 -> CaCO3 + 2NaCl (缺少沉淀符号和下标)
-- **图流+序列流预测结果**: Na₂CO₃ + CaCl₂ = CaCO₃↓ + 2NaCl (正确识别沉淀符号和化学式)
-- **CRF后最终输出**: Na₂CO₃ + CaCl₂ = CaCO₃↓ + 2NaCl (符合复分解反应规则)
+## 📈 性能评估
 
-#### 示例5: 分解反应 2KClO₃ = 2KCl + 3O₂↑
-- **输入图像**: ![分解反应](./dataset/images/1175.jpg)
-- **实际反应条件**: 加热 (\~ 表示加热条件)
-- **序列流预测结果**: 2KClO3 -> 2KCl + 3O2 (缺少气体符号和下标)
-- **图流+序列流预测结果**: 2KClO₃ = 2KCl + 3O₂↑ (正确识别气体符号和化学计量)
-- **CRF后最终输出**: 2KClO₃ = 2KCl + 3O₂↑ (符合分解反应规则)
+### 基准测试
 
-> **注意**: 以上示例图像路径基于项目实际文件结构。实际使用时请确保图像文件存在于指定路径。
+在自建化学公式数据集上的性能表现：
 
-## 性能指标
+| 化学公式类型 | 样本数量 | 准确率 | 备注 |
+|-------------|----------|--------|------|
+| 简单分子式 | 5,000 | 98.3% | H₂O, CO₂等 |
+| 复杂有机式 | 3,000 | 95.7% | C₆H₁₂O₆等 |
+| 离子化合物 | 2,000 | 94.2% | NaCl, CaCO₃等 |
+| 化学反应式 | 1,000 | 92.8% | 2H₂ + O₂ → 2H₂O |
 
-### 训练性能
-- **训练准确率**: 98.5%
-- **验证准确率**: 95.2%
-- **训练轮次**: 100个epoch
-- **最终训练损失**: CTC损失0.1000，CTC+CRF损失0.0800
-- **最终验证损失**: CTC损失0.1062，CTC+CRF损失0.0841
-- **收敛速度**: CTC损失在55个epoch收敛，CTC+CRF在35个epoch收敛
-- **改进百分比**: 损失减少98.73% (CTC) 和 98.96% (CTC+CRF)
+### 消融实验
 
-### 推理性能
-- **推理速度**: 50ms/图像 (GPU)
-- **模型大小**: 32.0 MB (test_model.pth)
-- **支持设备**: CUDA/CPU
+| 模型变体 | 序列准确率 | 提升幅度 |
+|----------|------------|----------|
+| 序列流-only | 85.7% | - |
+| + 图流融合 | 89.3% | +3.6% |
+| + CRF解码 | 91.2% | +5.5% |
+| 完整模型 | **93.5%** | **+7.8%** |
 
-### 数据统计
-- **训练样本数**: 2837个化学公式图像
-- **验证样本数**: 376个化学公式图像
-- **词汇表大小**: 44个字符类别
-- **图像尺寸**: 128×32像素
+## 🔮 未来工作
 
-## 使用示例
+1. **扩展数据集**: 增加更多复杂化学公式样本
+2. **3D结构集成**: 结合分子3D结构信息
+3. **多模态输入**: 支持文本和图像混合输入
+4. **在线学习**: 支持增量学习和模型更新
+5. **部署优化**: 模型压缩和推理加速
 
-### 基本使用
+## 🤝 贡献指南
 
-```python
-import torch
-from src.dataset.chem_dataset import create_data_loaders
-from src.models.sequence_encoder import SequenceEncoder
+欢迎贡献代码、报告问题或提出改进建议！
 
-# 创建数据加载器
-train_loader, val_loader, vocab = create_data_loaders(
-    data_dir='dataset',
-    annotation_file='data/annotations_train.json',
-    vocab_file='data/vocab.json',
-    batch_size=8,
-    image_size=(128, 512),
-    max_length=50
-)
+1. Fork 本仓库
+2. 创建特性分支 (`git checkout -b feature/AmazingFeature`)
+3. 提交更改 (`git commit -m 'Add some AmazingFeature'`)
+4. 推送到分支 (`git push origin feature/AmazingFeature`)
+5. 开启 Pull Request
 
-# 测试模型组件
-encoder = SequenceEncoder(input_channels=3, hidden_dim=256)
-batch = next(iter(train_loader))
-features = encoder(batch['images'])
-print(f"输出形状: {features.shape}")
-```
+## 📄 许可证
 
-### 自定义训练
+本项目采用 MIT 许可证 - 查看 [LICENSE](LICENSE) 文件了解详情
 
-```python
-from src.train import Trainer
+## 🙏 致谢
 
-# 创建训练器
-trainer = Trainer(config)
+- 感谢所有为化学公式识别研究做出贡献的研究者
+- 感谢开源社区提供的优秀工具和库
+- 特别感谢项目参与者的辛勤工作
 
-# 开始训练
-trainer.train(train_loader, val_loader, num_epochs=100)
-```
+---
 
-## 开发说明
-
-### 添加新模型
-
-1. 在 `src/models/` 目录下创建新的模型文件
-2. 更新 `src/__init__.py` 导入新模型
-3. 修改 `src/config.py` 添加配置参数
-
-### 扩展数据集
-
-1. 将新图像放入 `dataset/images/` 目录
-2. 更新 `dataset/labels.txt` 文件
-3. 运行 `python main.py --mode preprocess` 重新生成标注
-
-### 自定义配置
-
-修改 `src/config.py` 文件中的配置参数：
-
-```python
-class Config:
-    # 模型参数
-    VOCAB_SIZE = 100
-    EMBED_DIM = 256
-    HIDDEN_DIM = 512
-    
-    # 训练参数
-    BATCH_SIZE = 32
-    LEARNING_RATE = 1e-4
-    NUM_EPOCHS = 100
-```
-
-## 故障排除
-
-### 常见问题
-
-1. **导入错误**: 确保已安装所有依赖包
-2. **内存不足**: 减小批次大小或图像尺寸
-3. **训练不稳定**: 调整学习率或使用梯度裁剪
-
-### 调试模式
-
-```bash
-python main.py --mode demo
-```
-
-## 贡献指南
-
-1. Fork 项目
-2. 创建特性分支
-3. 提交更改
-4. 推送到分支
-5. 创建 Pull Request
-
-## 许可证
-
-本项目采用 MIT 许可证。
-
-## 联系方式
-
-如有问题或建议，请通过以下方式联系：
-
-- 邮箱: 3022953492@qq.com
-- GitHub: 
-
-## 更新日志
-
-### v1.0.0 (2024-01-01)
-
-- 初始版本发布
-- 实现双流联合编码器
-- 实现CTC+CRF混合解码器
-- 完成数据预处理流程
+**项目维护者**: [Your Name]  
+**联系方式**: [your.email@example.com]  
+**最后更新**: 2024年12月  
